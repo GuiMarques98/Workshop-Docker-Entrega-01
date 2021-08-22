@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+    api-gateway:
+        build:
+            context: ./api-gateway/
+        ports:
+            - "7000:7000"
+        depends_on:
+            - mysqldb
+        restart: on-failure
+
+    chat-app:
+        build:
+            context: ./chat-app/
+        ports:
+            - "7001:7001"
+        depends_on:
+            - mysqldb
+            - chat-service
+            - users-service
+        restart: on-failure
+
+    chat-service:
+        build:
+            context: ./chat-service/
+        ports:
+            - "7100:7100"
+        depends_on:
+            - mysqldb
+        restart: on-failure
+
+    phpmyadmin:
+        image: phpmyadmin
+        volumes:
+            - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+        ports:
+            - "7300:80"
+        depends_on:
+            - mysqldb
+        restart: on-failure
+
+    users-service:
+        build:
+            context: ./users-service/
+        command: bash -c "npm run db:migrate && npm run watch"
+        ports:
+            - "7101:7101"
+        depends_on:
+            - mysqldb
+        restart: on-failure
+
+    mysqldb:
+        image: mysql:5.7.20
+        command: --default-authentication-plugin=mysql_native_password
+        ports:
+            - "7201:3306"
+            - "7200:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: db

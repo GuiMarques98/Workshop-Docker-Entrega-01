@@ -7,5 +7,5 @@
   "migrations": ["src/db/migrations/*.ts"],
   "synchronize": true,
   "type": "mysql",
-  "url": "mysql://root:password@users-service-db/db"
+  "url": "mysql://root:password@mysqldb/db"
 }
